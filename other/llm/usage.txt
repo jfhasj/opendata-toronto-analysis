@@ -1,0 +1,274 @@
+LLM: Perplexity.
+Date: 23 September 2024
+
+Aspects of the code were written with Perplexity, and chat history is available in other/llm/usage.txt.
+
+
+User: "Help me access the dataset here https://open.toronto.ca/dataset/shootings-firearm-discharges using R"
+
+Response:
+library(opendatatoronto)
+library(dplyr)
+
+# Get the package
+package <- show_package("police-annual-statistical-report-shooting-occurrences")
+
+# List resources in the package
+resources <- list_package_resources(package)
+
+# Identify and get the CSV resource
+shootings_data <- resources %>%
+  filter(format == "CSV") %>%
+  get_resource()
+
+# View the first few rows of the data
+head(shootings_data)
+
+# Check the structure of the data
+str(shootings_data)
+
+User: "There's a problem with getting the resource"
+
+Response: library(opendatatoronto)
+library(dplyr)
+
+# Step 1: Get the package
+package <- show_package("police-annual-statistical-report-shooting-occurrences")
+
+# Step 2: List resources in the package
+resources <- list_package_resources(package)
+
+# Step 3: View the resources
+print(resources)
+
+# Step 4: Identify the correct resource (it might not be CSV)
+# Let's filter for the most recently updated resource
+latest_resource <- resources %>%
+  arrange(desc(last_modified)) %>%
+  slice(1)
+
+# Step 5: Get the resource
+shootings_data <- get_resource(latest_resource)
+
+# Step 6: View the first few rows of the data
+head(shootings_data)
+
+# Step 7: Check the structure of the data
+str(shootings_data)
+
+
+User: "in simulating the data, i want you to generate 500 rows, with columns OCC_DAY, OCC_HOUR, OCC_TIME, DIVISION, and INJURIES"
+Response: # Simulate data
+simulate_shootings_data <- function(n_rows = 500) {
+  # Generate initial data
+  data <- tibble(
+    OCC_DAY = sample(1:31, n_rows, replace = TRUE),
+    OCC_HOUR = sample(0:23, n_rows, replace = TRUE),
+    DIVISION = paste0("D", sample(11:54, n_rows, replace = TRUE)),
+    INJURIES = rpois(n_rows, lambda = 0.5)  # Using Poisson distribution for injuries
+  ) %>%
+    mutate(
+      OCC_TIME = case_when(
+        OCC_HOUR %in% 5:11 ~ "Morning",
+        OCC_HOUR %in% 12:17 ~ "Afternoon",
+        OCC_HOUR %in% 18:23 ~ "Evening",
+        TRUE ~ "Night"
+      )
+    )
+  
+  return(data)
+}
+
+User
+Graph 2 (total & month): bar chart of total shootings by month, grouping by seasons
+Response: o create a bar chart of total shootings by month and consider grouping by seasons (quarters) using ggplot in R, follow these steps:
+Step 1: Load the necessary libraries and data
+r
+library(ggplot2)
+library(dplyr)
+
+# Load the data
+df <- read.csv("cleaned_data.csv")
+
+Step 2: Prepare the data
+Group the data by month and count the total shootings. Then, create a new column to categorize each month into its respective season.
+r
+# Convert month to factor for proper ordering
+df$month <- factor(df$month, levels = month.name)
+
+# Group by month and count total shootings
+monthly_totals <- df %>%
+  group_by(month) %>%
+  summarize(total = n())
+
+# Create a season column
+monthly_totals$season <- case_when(
+  monthly_totals$month %in% c("December", "January", "February") ~ "Winter",
+  monthly_totals$month %in% c("March", "April", "May") ~ "Spring",
+  monthly_totals$month %in% c("June", "July", "August") ~ "Summer",
+  monthly_totals$month %in% c("September", "October", "November") ~ "Fall"
+)
+
+Step 3: Create the bar chart
+Now, use ggplot to create a bar chart of total shootings by month. You can also create a summary table if needed.
+r
+# Bar chart of total shootings by month
+ggplot(monthly_totals, aes(x = month, y = total, fill = season)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Month", y = "Total Shootings", title = "Total Shootings by Month") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+User:
+for the stacked bar chart, use the same one but change the x-axis to display the number corresponding to the month instead of the month itself. also, separate the date column into month day and year. in addition, let the x-axis being month numbers and the y-axis being the total for each month
+Response:
+Certainly! I'll create a stacked bar chart of total shootings by month using the provided data, with month numbers on the x-axis and total shootings on the y-axis. Here's the R code to accomplish this:
+r
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+
+# Read the CSV file
+df <- read.csv("cleaned_data.csv")
+
+# Convert date to Date type and extract month number
+df$date <- as.Date(df$date)
+df$month_num <- month(df$date)
+
+# Group by month number and count total shootings
+monthly_totals <- df %>%
+  group_by(month_num) %>%
+  summarize(total = n(), .groups = 'drop')
+
+# Add season column
+monthly_totals$season <- case_when(
+  monthly_totals$month_num %in% c(12, 1, 2, 3) ~ "Winter",
+  monthly_totals$month_num %in% c(4, 5) ~ "Spring",
+  monthly_totals$month_num %in% c(6, 7, 8, 9) ~ "Summer",
+  monthly_totals$month_num %in% c(10, 11) ~ "Fall"
+)
+
+# Create the stacked bar chart
+stacked_bar <- ggplot(monthly_totals, aes(x = month_num, y = total, fill = season)) +
+  geom_bar(stat = "identity") +
+  scale_x_continuous(breaks = 1:12, labels = 1:12) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "Month Number", y = "Total Shootings", 
+       title = "Total Shootings by Month",
+       fill = "Season") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
+        legend.position = "bottom")
+
+# Display the plot
+print(stacked_bar)
+
+# Save the plot as an image file (optional)
+ggsave("stacked_bar_shootings_by_month.png", plot = stacked_bar, width = 10, height = 6, dpi = 300)
+
+User: Produce a bar chart with the average number of shootings corresponding to each season with text at the top of each bar
+Response: library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+# Read the CSV file
+data_path <- here("outputs", "data", "cleaned_data.csv")
+cleaned_data <- read_csv(data_path, show_col_types = FALSE)
+
+# Convert date to Date type and extract month number
+cleaned_data$date <- as.Date(cleaned_data$date)
+cleaned_data$month_num <- month(cleaned_data$date)
+
+# Add season column to cleaned_data
+cleaned_data$season <- case_when(
+  cleaned_data$month_num %in% c(12, 1, 2, 3) ~ "Winter",
+  cleaned_data$month_num %in% c(4, 5) ~ "Spring",
+  cleaned_data$month_num %in% c(6, 7, 8, 9) ~ "Summer",
+  cleaned_data$month_num %in% c(10, 11) ~ "Fall"
+)
+
+# Calculate average shootings per month for each season
+seasonal_averages <- cleaned_data %>%
+  group_by(season) %>%
+  summarize(total = n(), .groups = 'drop') %>%
+  mutate(months_in_season = case_when(
+    season == "Winter" ~ 4,
+    season == "Spring" ~ 2,
+    season == "Summer" ~ 4,
+    season == "Fall" ~ 2
+  )) %>%
+  mutate(average = total / months_in_season / n_distinct(cleaned_data$year))
+
+season_colors <- c("Winter" = "skyblue1", 
+                   "Spring" = "darkgreen", 
+                   "Summer" = "yellow3", 
+                   "Fall" = "orange")
+
+# Create the bar chart with averages displayed on top
+season_bar <- ggplot(seasonal_averages, aes(x = season, y = average, fill = season)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f", average)), vjust = -0.25, color = "black", size = 4) +
+  scale_fill_manual(values = season_colors) +
+  labs(x = "Season", y = "Average Shootings per Month", 
+       title = "Average Shootings per Month by Season",
+       fill = "Season") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
+        legend.position = "none") +
+  ylim(0, max(seasonal_averages$average) * 1.1) # Extend y-axis to make room for labels
+  
+User
+"make R code showing a table (using kable) of the average total shootings, average shootings per year, average shootings per month, average shootings per day, and yearly standard deviation
+Response
+# Load necessary libraries
+library(dplyr)
+library(lubridate)
+library(knitr)
+
+# Read the cleaned data
+data_path <- here("outputs", "data", "cleaned_data.csv")
+cleaned_data <- read_csv(data_path, show_col_types = FALSE)
+
+# Convert date column to Date type if not already done
+cleaned_data$date <- as.Date(cleaned_data$date)
+
+# Calculate total shootings
+total_shootings <- nrow(cleaned_data)
+
+# Calculate average shootings per year
+average_shootings_per_year <- cleaned_data %>%
+  group_by(year = year(date)) %>%
+  summarize(total = n()) %>%
+  summarize(average = mean(total))
+
+# Calculate average shootings per month
+average_shootings_per_month <- cleaned_data %>%
+  group_by(month = month(date)) %>%
+  summarize(total = n()) %>%
+  summarize(average = mean(total))
+
+# Calculate average shootings per day
+average_shootings_per_day <- total_shootings / as.numeric(difftime(max(cleaned_data$date), min(cleaned_data$date), units = "days"))
+
+# Calculate standard deviation of yearly shootings
+std_dev_yearly_shootings <- cleaned_data %>%
+  group_by(year = year(date)) %>%
+  summarize(total = n()) %>%
+  summarize(sd = sd(total))
+
+# Create summary table
+summary_table <- data.frame(
+  Statistic = c("Total Shootings", 
+                "Average Shootings per Year", 
+                "Average Shootings per Month", 
+                "Average Shootings per Day",
+                "Standard Deviation of Yearly Shootings"),
+  Value = c(total_shootings, 
+            average_shootings_per_year$average, 
+            average_shootings_per_month$average, 
+            average_shootings_per_day,
+            std_dev_yearly_shootings$sd)
+)
+
+# Print the summary table using kable
+kable(summary_table, format = "pipe", align = "c")
