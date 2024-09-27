@@ -9,7 +9,7 @@ This paper analyzes the number of firearm-related shooting occurrences in Toront
 The repo is structured as:
 
 -   `inputs/data` contains the raw data as obtained from Open Data Toronto.
--   `inputs/picture` contains a picture of the map of the divisions of Toronto used in this analysis.
+-   `inputs/pictures` contains a picture of the map of the divisions of Toronto used in this analysis.
 -   `other/llm` contains chat history with Perplexity used to generate code to produce figures in this paper.
 -   `other/sketches` contains sketches of all figures used in this paper.
 -   `outputs/data` contains the cleaned dataset and simulated dataset.
