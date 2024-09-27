@@ -15,24 +15,37 @@ library(lubridate)
 # Set seed for reproducibility
 set.seed(464)
 
-# Simulate data
 simulate_shootings_data <- function(n_rows = 500) {
-  # Generate initial data
+  # Generate random dates for the OCC_DATE column
+  start_date <- as.Date("2014-01-01")
+  end_date <- as.Date("2023-12-31")
+  OCC_DATE <- sample(seq(start_date, end_date, by="day"), n_rows, replace = TRUE)
+  
+  # Extract year and month from OCC_DATE
+  OCC_YEAR <- year(OCC_DATE)
+  OCC_MONTH <- month(OCC_DATE, label = TRUE, abbr = FALSE)
+  
+  # Generate random hours and time ranges
+  OCC_HOUR <- sample(0:23, n_rows, replace = TRUE)
+  OCC_TIME_RANGE <- case_when(
+    OCC_HOUR %in% 5:11 ~ "Morning",
+    OCC_HOUR %in% 12:17 ~ "Afternoon",
+    OCC_HOUR %in% 18:23 ~ "Evening",
+    TRUE ~ "Night"
+  )
+  
+  # Generate random divisions
+  DIVISION <- paste0("D", sample(11:55, n_rows, replace = TRUE))
+  
+  # Create the final tibble
   data <- tibble(
-    OCC_DAY = sample(1:31, n_rows, replace = TRUE),
-    OCC_HOUR = sample(0:23, n_rows, replace = TRUE),
-    DIVISION = paste0("D", sample(11:55, n_rows, replace = TRUE)),
-    INJURIES = rpois(n_rows, lambda = 0.5) # Using Poisson distribution for injuries
-  ) %>%
-    mutate(
-      OCC_TIME = case_when(
-        OCC_HOUR %in% 5:11 ~ "Morning",
-        OCC_HOUR %in% 12:17 ~ "Afternoon",
-        OCC_HOUR %in% 18:23 ~ "Evening",
-        TRUE ~ "Night"
-      )
-    )
-
+    OCC_DATE,
+    OCC_YEAR,
+    OCC_MONTH,
+    OCC_TIME_RANGE,
+    DIVISION
+  )
+  
   return(data)
 }
 

@@ -3,7 +3,7 @@
 # Author: Sean Eugene Chua
 # Date: 23 September 2024
 # Contact: seaneugene.chua@mail.utoronto.ca
-# License: MIT
+# License: None
 # Pre-requisites: need to have libraries `janitor` and `here`
 # Any other information needed? None
 
@@ -24,7 +24,7 @@ cleaned_data <-
   mutate(date = as.Date(date)) |>
   filter(year >= 2014 & year <= 2023) |>
   select(
-    date, year, month, time_of_day
+    date, year, month, time_of_day, division
   ) |>
   tidyr::drop_na()
 

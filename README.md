@@ -2,7 +2,7 @@
 
 ## Overview
 
-This paper analyzes the number of firearm-related shooting occurrences in Toronto, particularly the existence of patterns and trends based on data from 2014-2023.
+This paper analyzes the number of firearm-related shooting occurrences in Toronto using an existing dataset from the Open Data Toronto, which was sourced from Toronto Police Services. In particular, this paper analyzes potential patterns and trends of shooting occurrences from 2014-2023.
 
 ## File Structure
 

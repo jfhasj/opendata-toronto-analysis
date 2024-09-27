@@ -27,9 +27,9 @@ library(here)
 
 # Introduction
 
-The increasing prevalence of gun violence in densely-populated and urban settings has raised significant concerns among policymakers, law enforcement, and communities alike. Ontario experienced the largest increase in shooting occurrences from 2021 to 2022 [@statcan-perreault], and analyzing patterns and trends in shootings in this regard could become vital in understanding the broader ramifications of firearm-related incidents and crime in general. This paper aims to provide a comprehensive analysis of firearm-related shooting occurrences in Toronto from 2014 to 2023 using data from the Toronto Police Services available as a dataset on Open Data Toronto [@citeShootingOcc]. By examining this data, we seek to identify any potential arising trends that may assist law enforcement in developing appropriate strategies to mitigate the number of shootings in years to come.
+The increasing prevalence of gun violence in densely-populated and urban settings has raised significant concerns among policymakers, law enforcement, and communities alike. Ontario experienced the largest increase in shooting occurrences from 2021 to 2022 [@statcan-perreault], and analyzing patterns and trends in shootings in this regard could become vital in understanding the broader ramifications of firearm-related incidents and crime in general. This being said, this paper aims to provide a comprehensive analysis of firearm-related shooting occurrences in Toronto from 2014 to 2023 using data from the Toronto Police Service available as a dataset on Open Data Toronto [@citeShootingOcc]. By examining this data, we seek to identify any potential arising trends that may assist law enforcement in developing appropriate strategies to mitigate the number of shootings in years to come.
 
-Despite the existing literature on gun violence, there remains a lack of localized studies that specifically address the temporal aspect of shootings in Canada, more specifically Toronto since most studies have largely focused on national trends or on cities in the US where shootings often occur. This paper aims to bridge this gap by investigating the possible presence of similar trends within Toronto and how these could be explained within the Canadian context. This paper also aims to provide details of how patterns in shooting occurrences can be noticed over time, particularly in relation to seasonal variations and time-of-day effects.
+Despite the existing literature on gun violence, there remains a lack of localized studies that specifically address the temporal aspect of shootings in Canada, more specifically Toronto since most studies have largely focused on national trends or on cities in the US where shootings often occur. This paper aims to bridge this gap by investigating the possible presence of similar trends within Toronto and how these could be explained within the Canadian context. This paper also aims to provide details on and answer the question, "Are patterns in shooting occurrences noticeable over time? If so, in what ways? This paper aims to answer this question in relation to the number of shooting occurrences in Toronto with respect to seasonal variations and time-of-day effects.
 
 Results show that the number of shooting incidents generally increased from 2014 to 2019, followed by a decrease from 2020 to 2023. This trend correlates with implemented nationwide laws aimed at reducing gun violence, including the ban on assault-style weapons after the 2020 Nova Scotia mass shooting. Furthermore, results indicate that summer and winter months exhibit the highest and lowest rates of shooting occurrences respectively. Additionally, we observed a trend based on the time of day, where shootings are more likely to occur during nighttime hours and less likely to occur during the day.
 
@@ -39,11 +39,11 @@ Understanding these patterns is crucial for developing targeted interventions to
 
 ## Overview
 
-The dataset used in this analysis was taken from Open Data Toronto and downloaded using the `opendatatoronto` library (Gelfand 2022). It records every reported occurrence of shootings or firearm discharges (excluding suicides and police involvements). All the data analysis was done through R [@citeR], along with external R packages such as `tidyverse` [@citeTidy], `knitr` [@citeKnit], and `here` [@citeHere].
+The dataset used in this analysis, entitled "Shootings & Firearm Discharges", was taken from Open Data Toronto and downloaded using the `opendatatoronto` library [@citeODT]. It records every reported occurrence of shootings or firearm discharges (excluding suicides and police involvements). All the data analysis was done through R [@citeR], along with external R packages such as `tidyverse` [@citeTidy], `knitr` [@citeKnit], and `here` [@citeHere].
 
-The dataset used is published by Toronto Police Services entitled "Shootings & Firearm Discharges", The data is refreshed quarterly and is accurate as of July 23, 2024. The raw data set contains information on the date and time — with varying granularities — of each reported shooting and the number of injuries and deaths, if any, among others. Moreover, it is worth noting that only one other dataset in the Open Data Toronto catalogue contains data about shootings; the dataset entitled "Police Annual Statistical Report - Shooting Occurrences" contains data only from 2014-2019 and is less granular with its data on shooting times and dates. Thus, it was not used in this analysis.
+The dataset used in the Open Data Toronto catalogue is published by the Toronto Police Service via the Toronto Police Service Public Safety Data Portal [@dataset-source]. The data is refreshed quarterly and is accurate as of July 23, 2024. The raw data set contains information on the date and time — with varying granularities — of each reported shooting and the number of injuries and deaths, if any, among others. Moreover, it is worth noting that only one other dataset in the Open Data Toronto catalogue contains data about shootings; the dataset entitled "Police Annual Statistical Report - Shooting Occurrences" contains data only from 2014-2019 and is less granular with its data on shooting times and dates. Thus, it was not used in this analysis.
 
-The variables used in this analysis include the following: `OCC_DATE`, `OCC_YEAR`, `OCC_MONTH`, and `OCC_TIME_RANGE`. A sample of the cleaned data is provided in @tbl-clean. Note that these columns from the original dataset were renamed for easier reference.
+The variables used in this analysis include the following: `OCC_DATE`, `OCC_YEAR`, `OCC_MONTH`, `OCC_TIME_RANGE`, and `DIVISION`. A sample of the cleaned data is provided in @tbl-clean. Note that these column names from the original dataset were consequently renamed for easier reference.
 
 ```{r}
 #| label: tbl-clean
@@ -137,7 +137,7 @@ ggplot(yearly_totals, aes(x = year, y = total)) +
   theme_minimal()
 ```
 
-We can see that shootings increased in every year from 2014-2016, decreased in 2017, increased again in every year from 2017-2019, followed by decreases in every year from 2020-2023. \newpage It is worth asking how the number of shooting occurrences change throughout the seasons. @fig-stackedbar shows that among the seasons, summer has generally more shootings than any other; winter has the least.
+We can see that shootings increased in every year from 2014-2016, decreased in 2017, increased again in every year from 2017-2019, followed by decreases in every year from 2020-2023. \newpage It is worth investigating how the number of shooting occurrences change throughout the seasons. @fig-stackedbar shows that among the seasons, summer has generally more shootings than any other; winter has the least.
 
 ```{r}
 #| label: fig-stackedbar
@@ -243,7 +243,7 @@ ggplot(seasonal_averages, aes(x = season, y = average, fill = season)) +
   ylim(0, max(seasonal_averages$average) * 1.1) # Extend y-axis to make room for labels
 ```
 
-We see that from 2014-2023, the number of shootings are highest over the summer months (with 36.7 occurrences per month on average) and at its lowest over the winter months (with 26.6 occurrences per month on average). \newpage @fig-timeofday-avg shows a great discrepancy between the number of shootings per year relative to the time of day.
+We see that from 2014-2023, the number of shootings are highest over the summer months (with 36.7 occurrences per month on average) and at its lowest over the winter months (with 26.6 occurrences per month on average).
 
 ```{r}
 #| label: fig-timeofday-avg
@@ -281,26 +281,83 @@ ggplot(time_of_day_averages, aes(x = time_of_day, y = average, fill = time_of_da
 
 We see that shootings are about 5.2 to 5.5 more likely to occur in the evening (6pm to 11:59pm) or at night (12am to 5:59am) compared to morning hours (6am to 11:59am).
 
+
+@fig-divisions shows divisions in Toronto where firearm discharges and shooting occurrences might be more prevalent.
+```{r}
+#| label: fig-divisions
+#| fig-cap: Number of Shootings by Division
+#| fig-pos: "H"
+#| echo: false
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# Load the data
+data_path <- here("outputs", "data", "cleaned_data.csv")
+cleaned_data <- read_csv(data_path, show_col_types = FALSE)
+
+# Count occurrences by division
+occurrences <- cleaned_data %>%
+  group_by(division) %>%
+  summarise(count = n())
+
+# Create the bar chart
+ggplot(occurrences, aes(x = division, y = count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_text(aes(label = count), vjust = -0.1) +  # Add text labels on top of bars
+  labs(title = "Number of Shooting Occurrences by Division",
+       x = "Division",
+       y = "Number of Occurrences") +
+  theme_minimal()
+```
+Here, we see that D23 and D31 have 400 and 585 shooting occurrences respectively from 2014-2023, which are significantly higher than other divisions such as D53 and D54, which have 78 and 75 shooting occurrences respectively along the same timespan.
+
 We discuss each of the above graphs further in @sec-discussion next.
 
 # Discussion {#sec-discussion}
 
 In @fig-linechart-yearly-total, we see a general increase in the number of shootings from 2014-2019 before successive decreases from 2020-2023. One reason for the decreasing trend from 2020-2023 could partially be attributed to the effects of the pandemic. National lockdowns forced people to stay inside their homes, minimizing face-to-face interaction and thus limiting opportunities for shootings.
 
-However, a larger contributor to the sudden shift in the number of shootings between the aforementioned time periods is the Canadian government’s implementation of a ban on assault-style weapons as a result of the Nova Scotia mass shooting in 2020, which was the worst in Canadian history [@guardian-assault-ban]. This ban covers the buying, selling, importing, and owning of such weapons. Although handguns are most often used in shooting-related crimes such as homicides [@statcan-perreault], the ban on assault-style weapons still contributed to the decrease in the number of shootings. The Canadian government has implemented parts of Bill C-21, an initiative to strengthen gun control measures. One measure which has already been put in place is the aforementioned ban on assault-style weapons; another is the “National Handgun Freeze” which imposes “restrictions on the sale, purchase, transfer, or import of handguns by individuals (with limited exceptions)” according to [@bill-c21]. With this, we expect the number of shooting occurrences in 2024 to further decrease from previous years.
+However, it could be argued that a larger contributor to the sudden shift in the number of shootings between the aforementioned time periods is the Canadian government’s implementation of a ban on assault-style weapons as a result of the Nova Scotia mass shooting in 2020,  the worst in Canadian history [@guardian-assault-ban]. This ban covers the buying, selling, importing, and owning of such weapons. Although handguns are most often used in shooting-related crimes such as homicides [@statcan-perreault], the ban on assault-style weapons still contributed to the decrease in the number of shootings. The Canadian government has implemented parts of Bill C-21, an initiative to strengthen gun control measures. One measure which has already been put in place is the aforementioned ban on assault-style weapons; another is the “National Handgun Freeze” which imposes “restrictions on the sale, purchase, transfer, or import of handguns by individuals (with limited exceptions)” according to [@bill-c21]. With this, we expect the number of shooting occurrences in 2024 to further decrease from previous years.
 
 From @fig-stackedbar and @fig-season-monthly-avg above, we see that summer and winter months see the highest and lowest (number and) rate of shootings. This is consistent with what [@seasonal-influence] find in their study “Seasonal Influence on Mass Shootings.” In the years covered by their study (2013-2015), the researchers found that there was “a clear increase in the number of mass shootings as well as the numbers killed and injured during the summer”, which is consistent with our findings in Toronto. They also state that shootings are highest “in May and finishes around September – October” which we also see in @fig-stackedbar. Additional data also support this idea as found by [@statcan-moreau] where he showed the existence of a seasonal regularity of crime in Canada. He states that in 2021, crime levels are lowest during fall and winter and highest during summer. He also postulates that this phenomenon is due to higher and lower tendencies for socialization during summer and winter months respectively.
 
-From @fig-timeofday-avg, we see that shootings occur most in the late hours of the day (at night and in the evening). This trend was also examined by [@uscrime-timeofday]; in analyzing some US cities, data showed that most shootings occurred at night and that such a nighttime effect exists. They also observed seasonality in crimes which was previously seen in Graphs 2 and 3 as well.
+From @fig-timeofday-avg, we see that shootings occur most in the late hours of the day (at night and in the evening). This trend was also examined by [@uscrime-timeofday]; in analyzing some US cities, data showed that most shootings occurred at night and that such a nighttime effect exists. They also observed seasonality in crimes which was previously seen in @fig-stackedbar and @fig-season-monthly-avg as well.
 
 All this being said, there is substantial evidence of relationships between the number of shooting occurrences and the year where we saw a general increase and decrease from 2014-2019 and 2020-2023 respectively as shown in @fig-linechart-yearly-total. Moreover, there also exists seasonal trends in shooting occurrences from @fig-stackedbar and @fig-season-monthly-avg, where we saw that most shootings occur in the summer, and the least occur in the winter. Finally, the time of day also has an effect on the number of shootings, with a nighttime effect being prominent as shown in the study by [@uscrime-timeofday] and @fig-timeofday-avg.
 
-The dataset used in this analysis does not take into account firearm-related shootings caused by police involvements and suicides. Although these are not technically crimes, their exclusion might affect how the use of firearms in Toronto and Canada is perceived and is something worth taking note of. An area of future research worth studying further is the correlation between the number of shooting occurrences and the socio-economic status of those committing the crime or the area in which the shootings occurred. This would provide a better idea on the “distribution” of shootings in different areas of Toronto, allowing law enforcement to focus strategic efforts in more affected areas.
-
 # Appendix
 
-## Data Cleaning
+## The Different Divisions
+The divisions referenced in @fig-divisions cover different neighbourhoods in Toronto and is also shown in @fig-divmap [@tps-map] below. The whole list of divisions and their neighbourhoods can be found [here](https://www.tps.ca/my-neighbourhood). For example, University of Toronto St. George belongs to D52 [@my-neighbourhood].
+```{r}
+#| label: fig-divmap
+#| fig-cap: A Map of Toronto's Different Divisions
+#| fig-pos: "H"
+#| echo: false
+#| 
+# Load necessary libraries
+library(png)
+library(grid)
 
-This dataset provided by the Toronto Police Services has incomplete data on location data before 2014, so we focus on 2014-2023. 2024 data is excluded, as it is currently incomplete. Columns not pertinent to this analysis were also removed, namely `X_id`, `EVENT_UNIQUE_ID`, `HOOD_158`, `NEIGHBOURHOOD_158`, `HOOD_140`, `NEIGHBOURHOOD_140`, and `geometry`.
+# Specify the path to your PNG file
+img_path <- here("inputs", "data", "tps-divisions.png")
+img <- png::readPNG(img_path)
+
+# Create a raster object from the image
+raster_img <- grid::rasterGrob(img, interpolate = TRUE)
+
+# Display the image
+grid.draw(raster_img)  # Draw the image on the grid
+```
+
+
+## Data Cleaning, Limitations, and Future Research
+
+This dataset provided by the Toronto Police Service has incomplete location data before 2014, so we focus on 2014-2023. 2024 data is excluded, as it is currently incomplete. Columns not pertinent to this analysis were also removed, namely `X_id`, `EVENT_UNIQUE_ID`, `HOOD_158`, `NEIGHBOURHOOD_158`, `HOOD_140`, `NEIGHBOURHOOD_140`, and `geometry`.
+
+The dataset used in this analysis does not take into account firearm-related shootings caused by police involvements and suicides. Although these are not technically crimes, their exclusion might affect how the use of firearms in Toronto and Canada is perceived and is something worth taking note of. It is also important to note that although D54 is present in the dataset, it is not seen in @fig-divmap. This is because D54 and D55 recently amalgamated [@d54-d55], and neighbourhoods subsumed under D54 have now been subsumed under D55 instead. Moreover, neighbourhoods may overlap between more than one division.
+
+An area of future research worth studying further is the correlation between the number of shooting occurrences and the socio-economic status of those committing the crime or the area in which the shootings occurred. This would provide a better idea on the “distribution” of shootings in different neighbourhoods of Toronto, allowing law enforcement to focus strategic efforts in more affected areas.
 
 # References
