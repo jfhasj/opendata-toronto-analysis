@@ -23,6 +23,10 @@ library(opendatatoronto)
 library(tidyverse)
 library(knitr)
 library(here)
+library(png)
+library(ggplot2)
+library(dplyr)
+library(grid)
 ```
 
 # Introduction
@@ -39,11 +43,13 @@ Understanding these patterns is crucial for developing targeted interventions to
 
 ## Overview
 
-The dataset used in this analysis, entitled "Shootings & Firearm Discharges", was taken from Open Data Toronto and downloaded using the `opendatatoronto` library [@citeODT]. It records every reported occurrence of shootings or firearm discharges (excluding suicides and police involvements). All the data analysis was done through R [@citeR], along with external R packages such as `tidyverse` [@citeTidy], `knitr` [@citeKnit], and `here` [@citeHere].
+The dataset used in this analysis, entitled "Shootings & Firearm Discharges", was taken from Open Data Toronto and downloaded using the `opendatatoronto` library [@citeODT]. It records every reported occurrence of shootings or firearm discharges (excluding suicides and police involvements). All the data analysis was done through R [@citeR], along with external R packages, namely `tidyverse` [@citeTidy], `knitr` [@citeKnit], `png` [@citePNG], `here` [@citeHere], `ggplot2` [@citeGG], `grid` [@citeR], and `dplyr` [@cite-dplyr].
 
-The dataset used in the Open Data Toronto catalogue is published by the Toronto Police Service via the Toronto Police Service Public Safety Data Portal [@dataset-source]. The data is refreshed quarterly and is accurate as of July 23, 2024. The raw data set contains information on the date and time — with varying granularities — of each reported shooting and the number of injuries and deaths, if any, among others. Moreover, it is worth noting that only one other dataset in the Open Data Toronto catalogue contains data about shootings; the dataset entitled "Police Annual Statistical Report - Shooting Occurrences" contains data only from 2014-2019 and is less granular with its data on shooting times and dates. Thus, it was not used in this analysis.
+The dataset used in the Open Data Toronto catalogue is published by the Toronto Police Service via the Toronto Police Service Public Safety Data Portal [@dataset-source]. The data is refreshed quarterly and is accurate as of July 23, 2024. The raw data set contains information on the date and time — with varying granularities — of each reported shooting and the number of injuries and deaths, if any, among others. 
 
-The variables used in this analysis include the following: `OCC_DATE`, `OCC_YEAR`, `OCC_MONTH`, `OCC_TIME_RANGE`, and `DIVISION`. A sample of the cleaned data is provided in @tbl-clean. Note that these column names from the original dataset were consequently renamed for easier reference.
+The process of collecting data on shooting occurrences is as follows: when a shooting is reported, it is either done through 911 calls (which are recorded), or it is reported to a police officer who takes note of important details (date, location, names, and the like). These details are then inputted into the Toronto Police Service's database. After some data transformations (such as splitting dates and times, classifying the time of day, and so on), data is then published as a dataset on their portal as well as Open Data Toronto. 
+
+This being said, it is worth noting that only one other dataset in the Open Data Toronto catalogue contains data about shootings; however, it contains data only from 2014-2019, is less granular with its data on shooting times and dates, and has not been updated since 2022. Thus, it was not used in this analysis. The variables used in this analysis include the following: `OCC_DATE`, `OCC_YEAR`, `OCC_MONTH`, `OCC_TIME_RANGE`, and `DIVISION`. A sample of the cleaned data is provided in @tbl-clean. Note that these column names from the original dataset were consequently renamed for easier reference.
 
 ```{r}
 #| label: tbl-clean
@@ -109,9 +115,7 @@ summary_table <- data.frame(
 # Print the summary table using kable
 kable(summary_table, format = "pipe", caption = "Summary Statistics for Shooting Occurrences in Toronto from 2014-2023")
 ```
-
 \newpage
-
 ## Results and Findings
 
 The succeeding graphs in this section display various relationships between shooting occurrences and the variables in @tbl-clean. @fig-linechart-yearly-total shows the number of shootings by year.
@@ -138,7 +142,6 @@ ggplot(yearly_totals, aes(x = year, y = total)) +
 ```
 
 We can see that shootings increased in every year from 2014-2016, decreased in 2017, increased again in every year from 2017-2019, followed by decreases in every year from 2020-2023. \newpage It is worth investigating how the number of shooting occurrences change throughout the seasons. @fig-stackedbar shows that among the seasons, summer has generally more shootings than any other; winter has the least.
-
 ```{r}
 #| label: fig-stackedbar
 #| fig-cap: Total Number of Shootings by Month
@@ -244,10 +247,11 @@ ggplot(seasonal_averages, aes(x = season, y = average, fill = season)) +
 ```
 
 We see that from 2014-2023, the number of shootings are highest over the summer months (with 36.7 occurrences per month on average) and at its lowest over the winter months (with 26.6 occurrences per month on average).
-
+\newpage
+@fig-timeofday-avg shows the average number of yearly shootings by the time of day, with about 27 shootings per year occurring in the morning, and about 148 shootings per year occurring in the evening.
 ```{r}
 #| label: fig-timeofday-avg
-#| fig-cap: Average Number of Shootings by Time-of-Day
+#| fig-cap: Average Yearly Number of Shootings by Time-of-Day
 #| fig-pos: "H"
 #| echo: false
 data_path <- here("outputs", "data", "cleaned_data.csv")
@@ -279,18 +283,15 @@ ggplot(time_of_day_averages, aes(x = time_of_day, y = average, fill = time_of_da
   ylim(0, max(time_of_day_averages$average) * 1.1) # Extend y-axis to make room for labels
 ```
 
-We see that shootings are about 5.2 to 5.5 more likely to occur in the evening (6pm to 11:59pm) or at night (12am to 5:59am) compared to morning hours (6am to 11:59am).
+As such, shootings are about 5.2 to 5.5 more likely to occur in the evening (6pm to 11:59pm) or at night (12am to 5:59am) compared to morning hours (6am to 11:59am).
 
-
+\newpage
 @fig-divisions shows divisions in Toronto where firearm discharges and shooting occurrences might be more prevalent.
 ```{r}
 #| label: fig-divisions
 #| fig-cap: Number of Shootings by Division
 #| fig-pos: "H"
 #| echo: false
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
 
 # Load the data
 data_path <- here("outputs", "data", "cleaned_data.csv")
@@ -326,6 +327,7 @@ From @fig-timeofday-avg, we see that shootings occur most in the late hours of t
 
 All this being said, there is substantial evidence of relationships between the number of shooting occurrences and the year where we saw a general increase and decrease from 2014-2019 and 2020-2023 respectively as shown in @fig-linechart-yearly-total. Moreover, there also exists seasonal trends in shooting occurrences from @fig-stackedbar and @fig-season-monthly-avg, where we saw that most shootings occur in the summer, and the least occur in the winter. Finally, the time of day also has an effect on the number of shootings, with a nighttime effect being prominent as shown in the study by [@uscrime-timeofday] and @fig-timeofday-avg.
 
+\newpage
 # Appendix
 
 ## The Different Divisions
@@ -336,12 +338,9 @@ The divisions referenced in @fig-divisions cover different neighbourhoods in Tor
 #| fig-pos: "H"
 #| echo: false
 #| 
-# Load necessary libraries
-library(png)
-library(grid)
 
 # Specify the path to your PNG file
-img_path <- here("inputs", "data", "tps-divisions.png")
+img_path <- here("inputs", "pictures", "tps-divisions.png")
 img <- png::readPNG(img_path)
 
 # Create a raster object from the image
@@ -354,10 +353,12 @@ grid.draw(raster_img)  # Draw the image on the grid
 
 ## Data Cleaning, Limitations, and Future Research
 
-This dataset provided by the Toronto Police Service has incomplete location data before 2014, so we focus on 2014-2023. 2024 data is excluded, as it is currently incomplete. Columns not pertinent to this analysis were also removed, namely `X_id`, `EVENT_UNIQUE_ID`, `HOOD_158`, `NEIGHBOURHOOD_158`, `HOOD_140`, `NEIGHBOURHOOD_140`, and `geometry`.
+This dataset provided by the Toronto Police Service has incomplete location data before 2014, so we focus on 2014-2023. 2024 data is excluded, as it is currently incomplete. Columns not pertinent to this analysis were also removed, namely `X_id`, `EVENT_UNIQUE_ID`, `HOOD_158`, `NEIGHBOURHOOD_158`, `HOOD_140`, `NEIGHBOURHOOD_140`, and `geometry`. Moreover, the creation of the cleaned dataset also involved removing any entries with `NA`s in any of the columns in @tbl-clean. This ensured that no missing data was present, and unambiguous analysis was able to be performed.
 
-The dataset used in this analysis does not take into account firearm-related shootings caused by police involvements and suicides. Although these are not technically crimes, their exclusion might affect how the use of firearms in Toronto and Canada is perceived and is something worth taking note of. It is also important to note that although D54 is present in the dataset, it is not seen in @fig-divmap. This is because D54 and D55 recently amalgamated [@d54-d55], and neighbourhoods subsumed under D54 have now been subsumed under D55 instead. Moreover, neighbourhoods may overlap between more than one division.
+The dataset used in this analysis does not take into account firearm-related shootings caused by police involvements and suicides. It also includes instances of accidental firearm discharges, which may not injure anyone. Although all these are not technically crimes, their exclusion (or inclusion, in the case of accidental firearm discharge data) might affect how the use of firearms in Toronto and Canada is perceived and is something worth taking note of. It is also important to note that although D54 is present in the dataset, it is not seen in @fig-divmap. This is because D54 and D55 recently amalgamated [@d54-d55], and neighbourhoods subsumed under D54 have now been subsumed under D55 instead. Moreover, neighbourhoods may overlap between more than one division. Aside from this, there may be some inconsistencies with the dataset with regards to the location data of shooting occurrences. This is because of privacy concerns with those involved in shootings; as such, "the location of crime occurrences have been deliberately offset to the nearest road intersection node" [@odt-dataset]. Consequently, however, the quantities shown in @fig-divisions may either be understated or overstated, which results in inaccuracies.
 
-An area of future research worth studying further is the correlation between the number of shooting occurrences and the socio-economic status of those committing the crime or the area in which the shootings occurred. This would provide a better idea on the “distribution” of shootings in different neighbourhoods of Toronto, allowing law enforcement to focus strategic efforts in more affected areas.
+With this, an area of future research worth studying further is the correlation between the number of shooting occurrences and the socio-economic status of those committing the crime or the area in which the shootings occurred. In addition, the population densities of each division could be obtained, and another analysis could be performed to investigate a potential correlation between population density, among other factors, and the number of shootings (and crime in general). This would provide a better idea on the “distribution” of shootings in different neighbourhoods of Toronto, as well as see which factors have larger effects or stronger correlation with crime statistics, allowing law enforcement to focus strategic efforts in more affected areas.
+
+\newpage
 
 # References
